@@ -1,0 +1,7 @@
+type LeaveHistory {
+  id: ID!
+  user: User!
+  date: String!
+  createdAt: String!
+  updatedAt: String!
+}
