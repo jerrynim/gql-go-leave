@@ -9,11 +9,26 @@ type User {
   password: String!
   name: String!
   bio: String
-  role: UserRole
+  role: UserRole!
   profileImage: String!
-  birthday: String
+  birthday: String!
   CreatedAt: String!
   UpdatedAt: String!
   RemainLeaves: Int!
   leaveHistories: [LeaveHistory]!
+}
+
+type Query {
+    getUsers():[User]!
+}
+
+type Mutation {
+  signUp(
+    email: String!
+    password: String!
+    name: String!
+    bio: String
+    profileImage: String!
+    birthday: String!
+  ): String!
 }

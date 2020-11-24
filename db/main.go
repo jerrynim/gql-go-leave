@@ -6,7 +6,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/AnjaneyuluBatta505/gin-graphql-postgres/graph/model"
+	"github.com/jerrynim/gql-leave/graph/model"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -43,13 +43,5 @@ func GetDatabase() (*gorm.DB, error) {
 }
 
 func RunMigrations(db *gorm.DB) {
-	db.AutoMigrate(&model.Question{})
-	if !db.HasTable(&model.Question{}) {
-		log.Printf("question 테이블이 없어요.")
-		db.CreateTable(&model.Question{})
-	}
-	if !db.HasTable(&model.Choice{}) {
-		db.CreateTable(&model.Choice{})
-		db.Model(&model.Choice{}).AddForeignKey("question_id", "questions(id)", "CASCADE", "CASCADE")
-	}
+	db.AutoMigrate(&model.User{},&model.LeaveHistory{})
 }

@@ -22,9 +22,9 @@ type User struct {
 	Password       string          `json:"password"`
 	Name           string          `json:"name"`
 	Bio            *string         `json:"bio"`
-	Role           *UserRole       `json:"role"`
+	Role           UserRole        `json:"role"`
 	ProfileImage   string          `json:"profileImage"`
-	Birthday       *string         `json:"birthday"`
+	Birthday       string          `json:"birthday"`
 	CreatedAt      string          `json:"CreatedAt"`
 	UpdatedAt      string          `json:"UpdatedAt"`
 	RemainLeaves   int             `json:"RemainLeaves"`

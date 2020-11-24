@@ -4,7 +4,6 @@ go 1.15
 
 require (
 	github.com/99designs/gqlgen v0.13.0
-	github.com/AnjaneyuluBatta505/gin-graphql-postgres v0.0.0-20200426161451-a0e742847dfa
 	github.com/dgryski/trifles v0.0.0-20190318185328-a8d75aae118c
 	github.com/gin-gonic/gin v1.6.3 // indirect
 	github.com/go-playground/validator/v10 v10.4.1 // indirect

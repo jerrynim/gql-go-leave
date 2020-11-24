@@ -32,9 +32,9 @@ type User {
   password: String!
   name: String!
   bio: String
-  role: UserRole
+  role: UserRole!
   profileImage: String!
-  birthday: String
+  birthday: String!
   CreatedAt: String!
   UpdatedAt: String!
   RemainLeaves: Int!

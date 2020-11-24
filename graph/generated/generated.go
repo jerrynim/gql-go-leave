@@ -333,9 +333,9 @@ type User {
   password: String!
   name: String!
   bio: String
-  role: UserRole
+  role: UserRole!
   profileImage: String!
-  birthday: String
+  birthday: String!
   CreatedAt: String!
   UpdatedAt: String!
   RemainLeaves: Int!
@@ -990,11 +990,14 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.UserRole)
+	res := resTmp.(model.UserRole)
 	fc.Result = res
-	return ec.marshalOUserRole2ᚖgithubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserRole(ctx, field.Selections, res)
+	return ec.marshalNUserRole2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserRole(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_profileImage(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -1057,11 +1060,14 @@ func (ec *executionContext) _User_birthday(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_CreatedAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -2456,6 +2462,9 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = ec._User_bio(ctx, field, obj)
 		case "role":
 			out.Values[i] = ec._User_role(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "profileImage":
 			out.Values[i] = ec._User_profileImage(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2463,6 +2472,9 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "birthday":
 			out.Values[i] = ec._User_birthday(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "CreatedAt":
 			out.Values[i] = ec._User_CreatedAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2883,6 +2895,16 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋjerrynimᚋgqlᚑleav
 	return ec._User(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNUserRole2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserRole(ctx context.Context, v interface{}) (model.UserRole, error) {
+	var res model.UserRole
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUserRole2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserRole(ctx context.Context, sel ast.SelectionSet, v model.UserRole) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
@@ -3172,22 +3194,6 @@ func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋjerrynimᚋgqlᚑleav
 		return graphql.Null
 	}
 	return ec._User(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalOUserRole2ᚖgithubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserRole(ctx context.Context, v interface{}) (*model.UserRole, error) {
-	if v == nil {
-		return nil, nil
-	}
-	var res = new(model.UserRole)
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOUserRole2ᚖgithubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserRole(ctx context.Context, sel ast.SelectionSet, v *model.UserRole) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return v
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
