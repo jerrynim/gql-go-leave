@@ -6,29 +6,30 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 )
 
 type LeaveHistory struct {
-	ID        string `json:"id"`
-	User      *User  `json:"user"`
-	Date      string `json:"date"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
+	ID        string `json:"id" gorm:"autoIncrement;primary_key"`
+	User      *User  `json:"user" gorm:"not null"`
+	Date      time.Time `json:"date" gorm:"not null"`
+	CreatedAt time.Time `json:"createdAt" gorm:"not null;->"`
+	UpdatedAt time.Time `json:"updatedAt" gorm:"not null"`
 }
 
 type User struct {
-	ID             string          `json:"id"`
-	Email          string          `json:"email"`
-	Password       string          `json:"password"`
-	Name           string          `json:"name"`
+	ID             string          `json:"id" gorm:"primary_key;autoIncrement"`
+	Email          string          `json:"email" gorm:"type:varchar(100);unique_index;not null"`
+	Password       string          `json:"password" gorm:"not null"`
+	Name           string          `json:"name" gorm:"size:32;not null"`
 	Bio            *string         `json:"bio"`
-	Role           UserRole        `json:"role"`
-	ProfileImage   string          `json:"profileImage"`
-	Birthday       string          `json:"birthday"`
-	CreatedAt      string          `json:"CreatedAt"`
-	UpdatedAt      string          `json:"UpdatedAt"`
-	RemainLeaves   int             `json:"RemainLeaves"`
-	LeaveHistories []*LeaveHistory `json:"leaveHistories"`
+	Role           UserRole        `json:"role" gorm:"not null"`
+	ProfileImage    string          `json:"profileImage" gorm:"not null"`
+	Birthday       string          `json:"birthday" gorm:"not null"`
+	RemainLeaves   uint            `json:"remainLeaves" gorm:"not null"`
+	LeaveHistories []*LeaveHistory `json:"leaveHistories" gorm:"not null"`
+	CreatedAt      string          `json:"createdAt" gorm:"not null;->"`
+	UpdatedAt      string          `json:"updatedAt" gorm:"not null"`
 }
 
 type UserRole string

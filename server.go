@@ -1,13 +1,16 @@
 package main
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"log"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	database "github.com/jerrynim/gql-leave/db"
-	"github.com/jerrynim/gql-leave/graph"
 	"github.com/jerrynim/gql-leave/graph/generated"
+	"github.com/jerrynim/gql-leave/resolver"
 	"github.com/joho/godotenv"
 
 	"github.com/gin-gonic/gin"
@@ -26,10 +29,14 @@ const defaultPort = ":8080"
 func graphqlHandler() gin.HandlerFunc {
 	// NewExecutableSchema and Config are in the generated.go file
 	// Resolver is in the resolver.go file
-	h := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
-
+	server := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &resolver.Resolver{}}))
+	server.SetRecoverFunc(func(ctx context.Context, err interface{}) error {
+		log.Print((err))
+		
+		return errors.New(fmt.Sprintf("%v", err))
+	})
 	return func(c *gin.Context) {
-		h.ServeHTTP(c.Writer, c.Request)
+		server.ServeHTTP(c.Writer, c.Request)
 	}
 }
 
