@@ -43,5 +43,5 @@ func GetDatabase() (*gorm.DB, error) {
 }
 
 func RunMigrations(db *gorm.DB) {
-	db.AutoMigrate(&model.User{},&model.LeaveHistory{})
+	db.AutoMigrate(&model.User{}, &model.LeaveHistory{})
 }

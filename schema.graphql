@@ -13,13 +13,15 @@ type Mutation {
     password: String!
     name: String!
     bio: String
+    position: String!
     profileImage: String!
-    birthday: String
+    birthday: String!
+    remainLeaves: Int!
   ): String!
 }
 
 type LeaveHistory {
-  id: ID!
+  id: Int!
   user: User!
   date: String!
   createdAt: String!
@@ -27,18 +29,20 @@ type LeaveHistory {
 }
 
 type User {
-  id: ID!
+  id: Int!
   email: String!
   password: String!
   name: String!
   bio: String
+  position: String!
   role: UserRole!
   profileImage: String!
   birthday: String!
-  CreatedAt: String!
-  UpdatedAt: String!
-  RemainLeaves: Int!
+  remainLeaves: Int!
   leaveHistories: [LeaveHistory]!
+  createdAt: String!
+  updatedAt: String!
+  deletedAt: String
 }
 
 

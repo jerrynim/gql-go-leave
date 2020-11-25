@@ -52,7 +52,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		SignUp func(childComplexity int, email string, password string, name string, bio *string, profileImage string, birthday *string) int
+		SignUp func(childComplexity int, email string, password string, name string, bio *string, position string, profileImage string, birthday string, remainLeaves int) int
 	}
 
 	Query struct {
@@ -63,11 +63,13 @@ type ComplexityRoot struct {
 		Bio            func(childComplexity int) int
 		Birthday       func(childComplexity int) int
 		CreatedAt      func(childComplexity int) int
+		DeletedAt      func(childComplexity int) int
 		Email          func(childComplexity int) int
 		ID             func(childComplexity int) int
 		LeaveHistories func(childComplexity int) int
 		Name           func(childComplexity int) int
 		Password       func(childComplexity int) int
+		Position       func(childComplexity int) int
 		ProfileImage   func(childComplexity int) int
 		RemainLeaves   func(childComplexity int) int
 		Role           func(childComplexity int) int
@@ -76,7 +78,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	SignUp(ctx context.Context, email string, password string, name string, bio *string, profileImage string, birthday *string) (string, error)
+	SignUp(ctx context.Context, email string, password string, name string, bio *string, position string, profileImage string, birthday string, remainLeaves int) (string, error)
 }
 type QueryResolver interface {
 	GetUsers(ctx context.Context) ([]*model.User, error)
@@ -142,7 +144,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SignUp(childComplexity, args["email"].(string), args["password"].(string), args["name"].(string), args["bio"].(*string), args["profileImage"].(string), args["birthday"].(*string)), true
+		return e.complexity.Mutation.SignUp(childComplexity, args["email"].(string), args["password"].(string), args["name"].(string), args["bio"].(*string), args["position"].(string), args["profileImage"].(string), args["birthday"].(string), args["remainLeaves"].(int)), true
 
 	case "Query.getUsers":
 		if e.complexity.Query.GetUsers == nil {
@@ -165,12 +167,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Birthday(childComplexity), true
 
-	case "User.CreatedAt":
+	case "User.createdAt":
 		if e.complexity.User.CreatedAt == nil {
 			break
 		}
 
 		return e.complexity.User.CreatedAt(childComplexity), true
+
+	case "User.deletedAt":
+		if e.complexity.User.DeletedAt == nil {
+			break
+		}
+
+		return e.complexity.User.DeletedAt(childComplexity), true
 
 	case "User.email":
 		if e.complexity.User.Email == nil {
@@ -207,6 +216,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Password(childComplexity), true
 
+	case "User.position":
+		if e.complexity.User.Position == nil {
+			break
+		}
+
+		return e.complexity.User.Position(childComplexity), true
+
 	case "User.profileImage":
 		if e.complexity.User.ProfileImage == nil {
 			break
@@ -214,7 +230,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.ProfileImage(childComplexity), true
 
-	case "User.RemainLeaves":
+	case "User.remainLeaves":
 		if e.complexity.User.RemainLeaves == nil {
 			break
 		}
@@ -228,7 +244,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Role(childComplexity), true
 
-	case "User.UpdatedAt":
+	case "User.updatedAt":
 		if e.complexity.User.UpdatedAt == nil {
 			break
 		}
@@ -314,13 +330,15 @@ type Mutation {
     password: String!
     name: String!
     bio: String
+    position: String!
     profileImage: String!
-    birthday: String
+    birthday: String!
+    remainLeaves: Int!
   ): String!
 }
 
 type LeaveHistory {
-  id: ID!
+  id: Int!
   user: User!
   date: String!
   createdAt: String!
@@ -328,18 +346,20 @@ type LeaveHistory {
 }
 
 type User {
-  id: ID!
+  id: Int!
   email: String!
   password: String!
   name: String!
   bio: String
+  position: String!
   role: UserRole!
   profileImage: String!
   birthday: String!
-  CreatedAt: String!
-  UpdatedAt: String!
-  RemainLeaves: Int!
+  remainLeaves: Int!
   leaveHistories: [LeaveHistory]!
+  createdAt: String!
+  updatedAt: String!
+  deletedAt: String
 }
 
 
@@ -397,23 +417,41 @@ func (ec *executionContext) field_Mutation_signUp_args(ctx context.Context, rawA
 	}
 	args["bio"] = arg3
 	var arg4 string
-	if tmp, ok := rawArgs["profileImage"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileImage"))
+	if tmp, ok := rawArgs["position"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("position"))
 		arg4, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["profileImage"] = arg4
-	var arg5 *string
-	if tmp, ok := rawArgs["birthday"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthday"))
-		arg5, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+	args["position"] = arg4
+	var arg5 string
+	if tmp, ok := rawArgs["profileImage"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileImage"))
+		arg5, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["birthday"] = arg5
+	args["profileImage"] = arg5
+	var arg6 string
+	if tmp, ok := rawArgs["birthday"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthday"))
+		arg6, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["birthday"] = arg6
+	var arg7 int
+	if tmp, ok := rawArgs["remainLeaves"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remainLeaves"))
+		arg7, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["remainLeaves"] = arg7
 	return args, nil
 }
 
@@ -500,9 +538,9 @@ func (ec *executionContext) _LeaveHistory_id(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _LeaveHistory_user(ctx context.Context, field graphql.CollectedField, obj *model.LeaveHistory) (ret graphql.Marshaler) {
@@ -670,7 +708,7 @@ func (ec *executionContext) _Mutation_signUp(ctx context.Context, field graphql.
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SignUp(rctx, args["email"].(string), args["password"].(string), args["name"].(string), args["bio"].(*string), args["profileImage"].(string), args["birthday"].(*string))
+		return ec.resolvers.Mutation().SignUp(rctx, args["email"].(string), args["password"].(string), args["name"].(string), args["bio"].(*string), args["position"].(string), args["profileImage"].(string), args["birthday"].(string), args["remainLeaves"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -823,9 +861,9 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -965,6 +1003,41 @@ func (ec *executionContext) _User_bio(ctx context.Context, field graphql.Collect
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _User_position(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Position, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _User_role(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1070,77 +1143,7 @@ func (ec *executionContext) _User_birthday(ctx context.Context, field graphql.Co
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _User_CreatedAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _User_UpdatedAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	fc := &graphql.FieldContext{
-		Object:     "User",
-		Field:      field,
-		Args:       nil,
-		IsMethod:   false,
-		IsResolver: false,
-	}
-
-	ctx = graphql.WithFieldContext(ctx, fc)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.UpdatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) _User_RemainLeaves(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+func (ec *executionContext) _User_remainLeaves(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1208,6 +1211,108 @@ func (ec *executionContext) _User_leaveHistories(ctx context.Context, field grap
 	res := resTmp.([]*model.LeaveHistory)
 	fc.Result = res
 	return ec.marshalNLeaveHistory2ᚕᚖgithubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐLeaveHistory(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UpdatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_deletedAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeletedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2460,6 +2565,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "bio":
 			out.Values[i] = ec._User_bio(ctx, field, obj)
+		case "position":
+			out.Values[i] = ec._User_position(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "role":
 			out.Values[i] = ec._User_role(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2475,18 +2585,8 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "CreatedAt":
-			out.Values[i] = ec._User_CreatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "UpdatedAt":
-			out.Values[i] = ec._User_UpdatedAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
-		case "RemainLeaves":
-			out.Values[i] = ec._User_RemainLeaves(ctx, field, obj)
+		case "remainLeaves":
+			out.Values[i] = ec._User_remainLeaves(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2495,6 +2595,18 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "createdAt":
+			out.Values[i] = ec._User_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updatedAt":
+			out.Values[i] = ec._User_updatedAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "deletedAt":
+			out.Values[i] = ec._User_deletedAt(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2758,21 +2870,6 @@ func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interf
 
 func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
 	res := graphql.MarshalBoolean(v)
-	if res == graphql.Null {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "must not be null")
-		}
-	}
-	return res
-}
-
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")

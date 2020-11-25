@@ -1,5 +1,5 @@
 type LeaveHistory {
-  id: ID!
+  id: Int!
   user: User!
   date: String!
   createdAt: String!

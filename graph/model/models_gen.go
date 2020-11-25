@@ -10,7 +10,7 @@ import (
 )
 
 type LeaveHistory struct {
-	ID        string `json:"id" gorm:"autoIncrement;primary_key"`
+	ID        uint `json:"id" gorm:"autoIncrement;primary_key;index"`
 	User      *User  `json:"user" gorm:"not null"`
 	Date      time.Time `json:"date" gorm:"not null"`
 	CreatedAt time.Time `json:"createdAt" gorm:"not null;->"`
@@ -18,18 +18,20 @@ type LeaveHistory struct {
 }
 
 type User struct {
-	ID             string          `json:"id" gorm:"primary_key;autoIncrement"`
+	ID             uint            `json:"id" gorm:"primary_key;auto_increment"`
 	Email          string          `json:"email" gorm:"type:varchar(100);unique_index;not null"`
 	Password       string          `json:"password" gorm:"not null"`
 	Name           string          `json:"name" gorm:"size:32;not null"`
-	Bio            *string         `json:"bio"`
-	Role           UserRole        `json:"role" gorm:"not null"`
-	ProfileImage    string          `json:"profileImage" gorm:"not null"`
-	Birthday       string          `json:"birthday" gorm:"not null"`
-	RemainLeaves   uint            `json:"remainLeaves" gorm:"not null"`
-	LeaveHistories []*LeaveHistory `json:"leaveHistories" gorm:"not null"`
-	CreatedAt      string          `json:"createdAt" gorm:"not null;->"`
-	UpdatedAt      string          `json:"updatedAt" gorm:"not null"`
+	Bio            *string         `json:"bio"` // 자기소개
+	Position       string          `json:"position" gorm:"position:not null;"` //직급
+	Role           UserRole        `json:"role" gorm:"not null;default:'normal'"` // 일반 혹은 매니저
+	ProfileImage    string          `json:"profileImage" gorm:"not null;default:'https://api.miniintern.com/images/profile/profile_image_default.svg'"`
+	Birthday       time.Time       `json:"birthday" gorm:"not null"`
+	RemainLeaves   uint            `json:"remainLeaves" gorm:"not null"` //남은 연차 일
+	LeaveHistories []*LeaveHistory `json:"leaveHistories" gorm:"not null"` //연차 사용 이력
+	CreatedAt      time.Time       `json:"createdAt" gorm:"not null;->"`
+	UpdatedAt      time.Time       `json:"updatedAt" gorm:"not null"`
+	DeletedAt      *time.Time      `json:"deletedAt"`
 }
 
 type UserRole string
