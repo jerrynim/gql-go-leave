@@ -6,9 +6,6 @@ import (
 )
 
 func GetTime() (string,error) {
-	now := time.Now().Round(0)
-    fmt.Println(now, time.Local)
-
     loc, err := time.LoadLocation("Asia/Seoul")
     if err != nil {
         fmt.Println(err)

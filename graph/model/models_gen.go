@@ -30,7 +30,7 @@ type User struct {
 	Position       string          `json:"position" gorm:"not null"` //직급
 	Contact        string          `json:"contact"  gorm:"not null"` //연락처
 	Role           UserRole        `json:"role" gorm:"not null;default:'normal'"` // 일반 혹은 매니저
-	ProfileImage    string          `json:"profileImage" gorm:"not null;default:'https://api.miniintern.com/images/profile/profile_image_default.svg'"`
+	ProfileImage    string          `json:"profileImage" gorm:"not null;default:'https://next-airbnb.s3.ap-northeast-2.amazonaws.com/profile_image_green2.svg'"`
 	Birthday       string       `json:"birthday" gorm:"not null"`
 	RemainLeaves   int             `json:"remainLeaves" gorm:"not null"` //남은 연차 일
 	LeaveHistories []*LeaveHistory `json:"leaveHistories" gorm:"not null"` //연차 사용 이력
