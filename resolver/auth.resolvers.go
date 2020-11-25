@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"time"
 
 	database "github.com/jerrynim/gql-leave/db"
 	"github.com/jerrynim/gql-leave/graph/model"
 	"github.com/jerrynim/gql-leave/jwt"
+	"github.com/jerrynim/gql-leave/localtime"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -42,10 +42,13 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 		panic(fmt.Errorf("비밀번호 해싱 에러"))
 	}
 	
-	birthdayDate,parseErr :=time.Parse(time.RFC3339, birthday)
+	birthdayDate,parseErr :=localtime.ParseTime(birthday)
 	if parseErr !=nil{
 		panic(fmt.Errorf("생년월일 시간 파싱 에러"))
 	}
+	now,parseErr :=localtime.GetTime()
+
+
 	user := model.User{
 		Email : email,
 		Name : name,
@@ -53,8 +56,10 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 		Position: position,
 		Contact: contact,
 		Bio:bio,
-		Birthday: birthdayDate.String(),
+		Birthday: birthdayDate,
 		RemainLeaves: remainLeaves,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 	
 	
@@ -63,7 +68,7 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 	if createErr != nil {
 		panic(fmt.Errorf("유저 생성 에러", createErr.Error()))
 	}
-	fmt.Print("새로운 유저",user.Name,"id: ",user.ID)
+	fmt.Print("새로운 유저",user.Name,"id: ",user.ID,"\n")
 	token,jwtErr:=jwt.GenerateToken(fmt.Sprint(user.ID))
 	
 	
