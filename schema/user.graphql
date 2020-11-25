@@ -24,16 +24,4 @@ type Query {
     getUsers():[User]!
 }
 
-type Mutation {
-  signUp(
-    email: String!
-    password: String!
-    name: String!
-    bio: String
-    position: String!
-    contact:String!
-    profileImage: String!
-    birthday: String!
-    remainLeaves: Int!
-  ): String!
-}
+

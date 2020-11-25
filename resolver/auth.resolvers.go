@@ -22,9 +22,8 @@ func (r *queryResolver) GetUsers(ctx context.Context) ([]*model.User, error) {
 
 //? Mutation
 
+func (r *mutationResolver) SignUp(ctx context.Context, email string, password string, name string, bio *string, position string, contact string, profileImage string, birthday string, remainLeaves int) (*model.AuthResponse, error) {
 
-
-func (r *mutationResolver) SignUp(ctx context.Context, email string, password string, name string, bio *string, position string, contact string, profileImage string, birthday string, remainLeaves int) (string, error) {
 	// loggedUser := ctx.Value("user")
     // fmt.Print(loggedUser,"유저??")
 	
@@ -54,8 +53,8 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 		Position: position,
 		Contact: contact,
 		Bio:bio,
-		Birthday: birthdayDate,
-		RemainLeaves:  uint(remainLeaves),
+		Birthday: birthdayDate.String(),
+		RemainLeaves: remainLeaves,
 	}
 	
 	
@@ -64,11 +63,23 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 	if createErr != nil {
 		panic(fmt.Errorf("유저 생성 에러", createErr.Error()))
 	}
-	fmt.Print(user.ID,"생성된 유저 아이디")
+	fmt.Print("새로운 유저",user.Name,"id: ",user.ID)
 	token,jwtErr:=jwt.GenerateToken(fmt.Sprint(user.ID))
+	
+	
 	if jwtErr != nil {
 		panic(fmt.Errorf("토큰 생성 에러"))
 	}
 
-	return token, nil
+	response:= model.AuthResponse{Token: token,User:&user}
+	return &response, nil
+}
+
+
+func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.AuthResponse, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *mutationResolver) Me(ctx context.Context) (*model.AuthResponse, error) {
+	panic(fmt.Errorf("not implemented"))
 }

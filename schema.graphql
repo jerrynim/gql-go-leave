@@ -18,7 +18,14 @@ type Mutation {
     profileImage: String!
     birthday: String!
     remainLeaves: Int!
-  ): String!
+  ): AuthResponse!
+  login(email: String!, password: String!): AuthResponse!
+  me: AuthResponse!
+}
+
+type AuthResponse {
+  token: String!
+  user: User!
 }
 
 type LeaveHistory {
@@ -46,10 +53,7 @@ type User {
   updatedAt: String!
 }
 
-
 enum UserRole {
   manager
   normal
 }
-
-

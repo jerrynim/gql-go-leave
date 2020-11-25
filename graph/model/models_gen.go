@@ -6,19 +6,23 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"time"
 )
 
+type AuthResponse struct {
+	Token string `json:"token"`
+	User  *User  `json:"user"`
+}
+
 type LeaveHistory struct {
-	ID        uint `json:"id" gorm:"autoIncrement;primary_key;index"`
-	User      *User  `json:"user" gorm:"not null"`
-	Date      time.Time `json:"date" gorm:"not null"`
-	CreatedAt time.Time `json:"createdAt" gorm:"not null;->"`
-	UpdatedAt time.Time `json:"updatedAt" gorm:"not null"`
+	ID        int       `json:"id" gorm:"autoIncrement;primary_key;index"`
+	User      *User     `json:"user" gorm:"not null"`
+	Date      string `json:"date" gorm:"not null"`
+	CreatedAt string `json:"createdAt" gorm:"not null;->"`
+	UpdatedAt string `json:"updatedAt" gorm:"not null"`
 }
 
 type User struct {
-	ID             uint            `json:"id" gorm:"primary_key;auto_increment"`
+	ID             int             `json:"id" gorm:"primary_key;auto_increment"`
 	Email          string          `json:"email" gorm:"type:varchar(100);unique_index;not null"`
 	Password       string          `json:"password" gorm:"not null"`
 	Name           string          `json:"name" gorm:"size:32;not null"`
@@ -27,11 +31,11 @@ type User struct {
 	Contact        string          `json:"contact"  gorm:"not null"` //연락처
 	Role           UserRole        `json:"role" gorm:"not null;default:'normal'"` // 일반 혹은 매니저
 	ProfileImage    string          `json:"profileImage" gorm:"not null;default:'https://api.miniintern.com/images/profile/profile_image_default.svg'"`
-	Birthday       time.Time       `json:"birthday" gorm:"not null"`
-	RemainLeaves   uint            `json:"remainLeaves" gorm:"not null"` //남은 연차 일
+	Birthday       string       `json:"birthday" gorm:"not null"`
+	RemainLeaves   int             `json:"remainLeaves" gorm:"not null"` //남은 연차 일
 	LeaveHistories []*LeaveHistory `json:"leaveHistories" gorm:"not null"` //연차 사용 이력
-	CreatedAt      time.Time       `json:"createdAt" gorm:"not null;->"`
-	UpdatedAt      time.Time       `json:"updatedAt" gorm:"not null"`
+	CreatedAt      string       `json:"createdAt" gorm:"not null;->"`
+	UpdatedAt      string       `json:"updatedAt" gorm:"not null"`
 }
 
 type UserRole string
