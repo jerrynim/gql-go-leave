@@ -19,3 +19,5 @@ resolver를 한 파일에 관리하는 것은 불편하므로 resolver폴더를 
 to start & reloading server
 
 > nodemon --exec go run server.go --signal SIGTERM
+
+<img src="asset/sample.png"/>
