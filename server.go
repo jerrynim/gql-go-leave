@@ -5,12 +5,15 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	database "github.com/jerrynim/gql-leave/db"
 	"github.com/jerrynim/gql-leave/graph/generated"
+	"github.com/jerrynim/gql-leave/middleware"
 	"github.com/jerrynim/gql-leave/resolver"
+
 	"github.com/joho/godotenv"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +26,6 @@ func init() {
 	}
   }
 
-const defaultPort = ":8080"
 
 // Defining the Graphql handler
 func graphqlHandler() gin.HandlerFunc {
@@ -55,9 +57,19 @@ func main() {
 		log.Println(err.Error(),"데이터베이스 연결 에러")
 	}
 	database.RunMigrations(db)
+	port := os.Getenv("PORT")
+	fmt.Print(port)
+    if port == "" {
+		port = ":8000"
+    }
+	
+	
 	r := gin.Default()
 	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
+	r.Use(middleware.Middleware())
+
 	r.POST("/query", graphqlHandler())
 	r.GET("/", playgroundHandler())
-	r.Run(defaultPort)
+	r.Run(port)
 }

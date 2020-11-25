@@ -8,6 +8,8 @@ import (
 
 	database "github.com/jerrynim/gql-leave/db"
 	"github.com/jerrynim/gql-leave/graph/model"
+	"github.com/jerrynim/gql-leave/jwt"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,8 +24,10 @@ func (r *queryResolver) GetUsers(ctx context.Context) ([]*model.User, error) {
 
 
 
-func (r *mutationResolver) SignUp(ctx context.Context, email string, password string, name string, bio *string, position string, profileImage string, birthday string, remainLeaves int) (string, error) {
-
+func (r *mutationResolver) SignUp(ctx context.Context, email string, password string, name string, bio *string, position string, contact string, profileImage string, birthday string, remainLeaves int) (string, error) {
+	// loggedUser := ctx.Value("user")
+    // fmt.Print(loggedUser,"유저??")
+	
 	db, err := database.GetDatabase()
 
 	if err != nil {
@@ -48,12 +52,23 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 		Name : name,
 		Password:string(hash),
 		Position: position,
+		Contact: contact,
 		Bio:bio,
 		Birthday: birthdayDate,
-		RemainLeaves: 15,
+		RemainLeaves:  uint(remainLeaves),
 	}
 	
 	
-	db.Create(&user)
-	return "access_token", nil
+	createErr:= db.Create(&user).Error;
+
+	if createErr != nil {
+		panic(fmt.Errorf("유저 생성 에러", createErr.Error()))
+	}
+	fmt.Print(user.ID,"생성된 유저 아이디")
+	token,jwtErr:=jwt.GenerateToken(fmt.Sprint(user.ID))
+	if jwtErr != nil {
+		panic(fmt.Errorf("토큰 생성 에러"))
+	}
+
+	return token, nil
 }
