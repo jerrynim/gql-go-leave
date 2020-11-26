@@ -11,7 +11,7 @@ import (
 	"github.com/jerrynim/gql-leave/graph/model"
 )
 
-func (r *mutationResolver) SignUp(ctx context.Context, email string, password string, name string, bio *string, position string, contact string, profileImage string, birthday string, remainLeaves int) (*model.AuthResponse, error) {
+func (r *mutationResolver) SignUp(ctx context.Context, email string, password string, name string, bio *string, department string, position string, workSpace string, contact string, birthday string, enteredDate string, remainLeaves int) (*model.AuthResponse, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 

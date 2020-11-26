@@ -13,10 +13,12 @@ type Mutation {
     password: String!
     name: String!
     bio: String
+    department: String!
     position: String!
+    workSpace: String!
     contact: String!
-    profileImage: String!
     birthday: String!
+    enteredDate: String!
     remainLeaves: Int!
   ): AuthResponse!
   login(email: String!, password: String!): AuthResponse!
@@ -31,9 +33,12 @@ type AuthResponse {
 type LeaveHistory {
   id: Int!
   user: User!
-  date: String!
-  createdAt: String!
-  updatedAt: String!
+  date: Time!
+  reason: String
+  status: LeaveStatus!
+  approver: User
+  createdAt: Time!
+  updatedAt: Time!
 }
 
 type User {
@@ -42,18 +47,39 @@ type User {
   password: String!
   name: String!
   bio: String
+  department: String!
   position: String!
+  workSpace: String!
   contact: String!
   role: UserRole!
+  status: UserStatus!
   profileImage: String!
-  birthday: String!
+  birthday: Time!
+  enteredDate: Time!
+  resignationDate: Time
   remainLeaves: Int!
   leaveHistories: [LeaveHistory]!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+scalar Time
+
+enum LeaveStatus {
+  applied
+  accepted
+  rejected
 }
 
 enum UserRole {
+  master
   manager
   normal
 }
+
+enum UserStatus {
+  inOffice
+  resign
+}
+
+

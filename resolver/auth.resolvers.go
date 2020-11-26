@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	database "github.com/jerrynim/gql-leave/db"
 	"github.com/jerrynim/gql-leave/graph/model"
 	"github.com/jerrynim/gql-leave/jwt"
-	"github.com/jerrynim/gql-leave/localtime"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -22,7 +22,7 @@ func (r *queryResolver) GetUsers(ctx context.Context) ([]*model.User, error) {
 
 //? Mutation
 
-func (r *mutationResolver) SignUp(ctx context.Context, email string, password string, name string, bio *string, position string, contact string, profileImage string, birthday string, remainLeaves int) (*model.AuthResponse, error) {
+func (r *mutationResolver) SignUp(ctx context.Context, email string, password string, name string, bio *string, department string, position string, workSpace string, contact string, birthday string, enteredDate string, remainLeaves int) (*model.AuthResponse, error) {
 
 	// loggedUser := ctx.Value("user")
     // fmt.Print(loggedUser,"유저??")
@@ -42,24 +42,29 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 		panic(fmt.Errorf("비밀번호 해싱 에러"))
 	}
 	
-	birthdayDate,parseErr :=localtime.ParseTime(birthday)
-	if parseErr !=nil{
+	birthdayDate,birthdayParseErr:= time.Parse(time.RFC3339, birthday)
+	if birthdayParseErr !=nil{
 		panic(fmt.Errorf("생년월일 시간 파싱 에러"))
 	}
-	now,parseErr :=localtime.GetTime()
+
+	parsedEnteredDate,enterDateParseErr:= time.Parse(time.RFC3339, enteredDate)
+	if enterDateParseErr !=nil{
+		panic(fmt.Errorf("생년월일 시간 파싱 에러"))
+	}
 
 
 	user := model.User{
 		Email : email,
-		Name : name,
 		Password:string(hash),
-		Position: position,
-		Contact: contact,
+		Name : name,
 		Bio:bio,
+		Department: department,
+		Position: position,
+		WorkSpace: workSpace,
+		Contact: contact,
 		Birthday: birthdayDate,
+		EnteredDate: parsedEnteredDate,
 		RemainLeaves: remainLeaves,
-		CreatedAt: now,
-		UpdatedAt: now,
 	}
 	
 	

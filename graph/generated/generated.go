@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -49,9 +50,12 @@ type ComplexityRoot struct {
 	}
 
 	LeaveHistory struct {
+		Approver  func(childComplexity int) int
 		CreatedAt func(childComplexity int) int
 		Date      func(childComplexity int) int
 		ID        func(childComplexity int) int
+		Reason    func(childComplexity int) int
+		Status    func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
 		User      func(childComplexity int) int
 	}
@@ -59,7 +63,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		Login  func(childComplexity int, email string, password string) int
 		Me     func(childComplexity int) int
-		SignUp func(childComplexity int, email string, password string, name string, bio *string, position string, contact string, profileImage string, birthday string, remainLeaves int) int
+		SignUp func(childComplexity int, email string, password string, name string, bio *string, department string, position string, workSpace string, contact string, birthday string, enteredDate string, remainLeaves int) int
 	}
 
 	Query struct {
@@ -67,25 +71,30 @@ type ComplexityRoot struct {
 	}
 
 	User struct {
-		Bio            func(childComplexity int) int
-		Birthday       func(childComplexity int) int
-		Contact        func(childComplexity int) int
-		CreatedAt      func(childComplexity int) int
-		Email          func(childComplexity int) int
-		ID             func(childComplexity int) int
-		LeaveHistories func(childComplexity int) int
-		Name           func(childComplexity int) int
-		Password       func(childComplexity int) int
-		Position       func(childComplexity int) int
-		ProfileImage   func(childComplexity int) int
-		RemainLeaves   func(childComplexity int) int
-		Role           func(childComplexity int) int
-		UpdatedAt      func(childComplexity int) int
+		Bio             func(childComplexity int) int
+		Birthday        func(childComplexity int) int
+		Contact         func(childComplexity int) int
+		CreatedAt       func(childComplexity int) int
+		Department      func(childComplexity int) int
+		Email           func(childComplexity int) int
+		EnteredDate     func(childComplexity int) int
+		ID              func(childComplexity int) int
+		LeaveHistories  func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Password        func(childComplexity int) int
+		Position        func(childComplexity int) int
+		ProfileImage    func(childComplexity int) int
+		RemainLeaves    func(childComplexity int) int
+		ResignationDate func(childComplexity int) int
+		Role            func(childComplexity int) int
+		Status          func(childComplexity int) int
+		UpdatedAt       func(childComplexity int) int
+		WorkSpace       func(childComplexity int) int
 	}
 }
 
 type MutationResolver interface {
-	SignUp(ctx context.Context, email string, password string, name string, bio *string, position string, contact string, profileImage string, birthday string, remainLeaves int) (*model.AuthResponse, error)
+	SignUp(ctx context.Context, email string, password string, name string, bio *string, department string, position string, workSpace string, contact string, birthday string, enteredDate string, remainLeaves int) (*model.AuthResponse, error)
 	Login(ctx context.Context, email string, password string) (*model.AuthResponse, error)
 	Me(ctx context.Context) (*model.AuthResponse, error)
 }
@@ -122,6 +131,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.AuthResponse.User(childComplexity), true
 
+	case "LeaveHistory.approver":
+		if e.complexity.LeaveHistory.Approver == nil {
+			break
+		}
+
+		return e.complexity.LeaveHistory.Approver(childComplexity), true
+
 	case "LeaveHistory.createdAt":
 		if e.complexity.LeaveHistory.CreatedAt == nil {
 			break
@@ -142,6 +158,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.LeaveHistory.ID(childComplexity), true
+
+	case "LeaveHistory.reason":
+		if e.complexity.LeaveHistory.Reason == nil {
+			break
+		}
+
+		return e.complexity.LeaveHistory.Reason(childComplexity), true
+
+	case "LeaveHistory.status":
+		if e.complexity.LeaveHistory.Status == nil {
+			break
+		}
+
+		return e.complexity.LeaveHistory.Status(childComplexity), true
 
 	case "LeaveHistory.updatedAt":
 		if e.complexity.LeaveHistory.UpdatedAt == nil {
@@ -186,7 +216,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.SignUp(childComplexity, args["email"].(string), args["password"].(string), args["name"].(string), args["bio"].(*string), args["position"].(string), args["contact"].(string), args["profileImage"].(string), args["birthday"].(string), args["remainLeaves"].(int)), true
+		return e.complexity.Mutation.SignUp(childComplexity, args["email"].(string), args["password"].(string), args["name"].(string), args["bio"].(*string), args["department"].(string), args["position"].(string), args["workSpace"].(string), args["contact"].(string), args["birthday"].(string), args["enteredDate"].(string), args["remainLeaves"].(int)), true
 
 	case "Query.getUsers":
 		if e.complexity.Query.GetUsers == nil {
@@ -223,12 +253,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.CreatedAt(childComplexity), true
 
+	case "User.department":
+		if e.complexity.User.Department == nil {
+			break
+		}
+
+		return e.complexity.User.Department(childComplexity), true
+
 	case "User.email":
 		if e.complexity.User.Email == nil {
 			break
 		}
 
 		return e.complexity.User.Email(childComplexity), true
+
+	case "User.enteredDate":
+		if e.complexity.User.EnteredDate == nil {
+			break
+		}
+
+		return e.complexity.User.EnteredDate(childComplexity), true
 
 	case "User.id":
 		if e.complexity.User.ID == nil {
@@ -279,6 +323,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.RemainLeaves(childComplexity), true
 
+	case "User.resignationDate":
+		if e.complexity.User.ResignationDate == nil {
+			break
+		}
+
+		return e.complexity.User.ResignationDate(childComplexity), true
+
 	case "User.role":
 		if e.complexity.User.Role == nil {
 			break
@@ -286,12 +337,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Role(childComplexity), true
 
+	case "User.status":
+		if e.complexity.User.Status == nil {
+			break
+		}
+
+		return e.complexity.User.Status(childComplexity), true
+
 	case "User.updatedAt":
 		if e.complexity.User.UpdatedAt == nil {
 			break
 		}
 
 		return e.complexity.User.UpdatedAt(childComplexity), true
+
+	case "User.workSpace":
+		if e.complexity.User.WorkSpace == nil {
+			break
+		}
+
+		return e.complexity.User.WorkSpace(childComplexity), true
 
 	}
 	return 0, false
@@ -372,10 +437,12 @@ type Mutation {
     password: String!
     name: String!
     bio: String
+    department: String!
     position: String!
+    workSpace: String!
     contact: String!
-    profileImage: String!
     birthday: String!
+    enteredDate: String!
     remainLeaves: Int!
   ): AuthResponse!
   login(email: String!, password: String!): AuthResponse!
@@ -390,9 +457,12 @@ type AuthResponse {
 type LeaveHistory {
   id: Int!
   user: User!
-  date: String!
-  createdAt: String!
-  updatedAt: String!
+  date: Time!
+  reason: String
+  status: LeaveStatus!
+  approver: User
+  createdAt: Time!
+  updatedAt: Time!
 }
 
 type User {
@@ -401,21 +471,42 @@ type User {
   password: String!
   name: String!
   bio: String
+  department: String!
   position: String!
+  workSpace: String!
   contact: String!
   role: UserRole!
+  status: UserStatus!
   profileImage: String!
-  birthday: String!
+  birthday: Time!
+  enteredDate: Time!
+  resignationDate: Time
   remainLeaves: Int!
   leaveHistories: [LeaveHistory]!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+scalar Time
+
+enum LeaveStatus {
+  applied
+  accepted
+  rejected
 }
 
 enum UserRole {
+  master
   manager
   normal
 }
+
+enum UserStatus {
+  inOffice
+  resign
+}
+
+
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -488,50 +579,68 @@ func (ec *executionContext) field_Mutation_signUp_args(ctx context.Context, rawA
 	}
 	args["bio"] = arg3
 	var arg4 string
-	if tmp, ok := rawArgs["position"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("position"))
+	if tmp, ok := rawArgs["department"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("department"))
 		arg4, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["position"] = arg4
+	args["department"] = arg4
 	var arg5 string
-	if tmp, ok := rawArgs["contact"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contact"))
+	if tmp, ok := rawArgs["position"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("position"))
 		arg5, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["contact"] = arg5
+	args["position"] = arg5
 	var arg6 string
-	if tmp, ok := rawArgs["profileImage"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("profileImage"))
+	if tmp, ok := rawArgs["workSpace"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("workSpace"))
 		arg6, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["profileImage"] = arg6
+	args["workSpace"] = arg6
 	var arg7 string
-	if tmp, ok := rawArgs["birthday"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthday"))
+	if tmp, ok := rawArgs["contact"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("contact"))
 		arg7, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["birthday"] = arg7
-	var arg8 int
-	if tmp, ok := rawArgs["remainLeaves"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remainLeaves"))
-		arg8, err = ec.unmarshalNInt2int(ctx, tmp)
+	args["contact"] = arg7
+	var arg8 string
+	if tmp, ok := rawArgs["birthday"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("birthday"))
+		arg8, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["remainLeaves"] = arg8
+	args["birthday"] = arg8
+	var arg9 string
+	if tmp, ok := rawArgs["enteredDate"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enteredDate"))
+		arg9, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["enteredDate"] = arg9
+	var arg10 int
+	if tmp, ok := rawArgs["remainLeaves"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("remainLeaves"))
+		arg10, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["remainLeaves"] = arg10
 	return args, nil
 }
 
@@ -758,9 +867,108 @@ func (ec *executionContext) _LeaveHistory_date(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LeaveHistory_reason(ctx context.Context, field graphql.CollectedField, obj *model.LeaveHistory) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LeaveHistory",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Reason, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LeaveHistory_status(ctx context.Context, field graphql.CollectedField, obj *model.LeaveHistory) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LeaveHistory",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.LeaveStatus)
+	fc.Result = res
+	return ec.marshalNLeaveStatus2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐLeaveStatus(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LeaveHistory_approver(ctx context.Context, field graphql.CollectedField, obj *model.LeaveHistory) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "LeaveHistory",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Approver, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalOUser2ᚖgithubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _LeaveHistory_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.LeaveHistory) (ret graphql.Marshaler) {
@@ -793,9 +1001,9 @@ func (ec *executionContext) _LeaveHistory_createdAt(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _LeaveHistory_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.LeaveHistory) (ret graphql.Marshaler) {
@@ -828,9 +1036,9 @@ func (ec *executionContext) _LeaveHistory_updatedAt(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Mutation_signUp(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -858,7 +1066,7 @@ func (ec *executionContext) _Mutation_signUp(ctx context.Context, field graphql.
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().SignUp(rctx, args["email"].(string), args["password"].(string), args["name"].(string), args["bio"].(*string), args["position"].(string), args["contact"].(string), args["profileImage"].(string), args["birthday"].(string), args["remainLeaves"].(int))
+		return ec.resolvers.Mutation().SignUp(rctx, args["email"].(string), args["password"].(string), args["name"].(string), args["bio"].(*string), args["department"].(string), args["position"].(string), args["workSpace"].(string), args["contact"].(string), args["birthday"].(string), args["enteredDate"].(string), args["remainLeaves"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1230,6 +1438,41 @@ func (ec *executionContext) _User_bio(ctx context.Context, field graphql.Collect
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _User_department(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Department, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _User_position(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1249,6 +1492,41 @@ func (ec *executionContext) _User_position(ctx context.Context, field graphql.Co
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Position, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_workSpace(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.WorkSpace, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1335,6 +1613,41 @@ func (ec *executionContext) _User_role(ctx context.Context, field graphql.Collec
 	return ec.marshalNUserRole2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserRole(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _User_status(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Status, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(model.UserStatus)
+	fc.Result = res
+	return ec.marshalNUserStatus2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserStatus(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _User_profileImage(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1400,9 +1713,76 @@ func (ec *executionContext) _User_birthday(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_enteredDate(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EnteredDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_resignationDate(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "User",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ResignationDate, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_remainLeaves(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -1505,9 +1885,9 @@ func (ec *executionContext) _User_createdAt(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -1540,9 +1920,9 @@ func (ec *executionContext) _User_updatedAt(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) ___Directive_name(ctx context.Context, field graphql.CollectedField, obj *introspection.Directive) (ret graphql.Marshaler) {
@@ -2698,6 +3078,15 @@ func (ec *executionContext) _LeaveHistory(ctx context.Context, sel ast.Selection
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "reason":
+			out.Values[i] = ec._LeaveHistory_reason(ctx, field, obj)
+		case "status":
+			out.Values[i] = ec._LeaveHistory_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "approver":
+			out.Values[i] = ec._LeaveHistory_approver(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._LeaveHistory_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2837,8 +3226,18 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "bio":
 			out.Values[i] = ec._User_bio(ctx, field, obj)
+		case "department":
+			out.Values[i] = ec._User_department(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "position":
 			out.Values[i] = ec._User_position(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "workSpace":
+			out.Values[i] = ec._User_workSpace(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -2852,6 +3251,11 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "status":
+			out.Values[i] = ec._User_status(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "profileImage":
 			out.Values[i] = ec._User_profileImage(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2862,6 +3266,13 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "enteredDate":
+			out.Values[i] = ec._User_enteredDate(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "resignationDate":
+			out.Values[i] = ec._User_resignationDate(ctx, field, obj)
 		case "remainLeaves":
 			out.Values[i] = ec._User_remainLeaves(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -3219,6 +3630,16 @@ func (ec *executionContext) marshalNLeaveHistory2ᚕᚖgithubᚗcomᚋjerrynim�
 	return ret
 }
 
+func (ec *executionContext) unmarshalNLeaveStatus2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐLeaveStatus(ctx context.Context, v interface{}) (model.LeaveStatus, error) {
+	var res model.LeaveStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNLeaveStatus2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐLeaveStatus(ctx context.Context, sel ast.SelectionSet, v model.LeaveStatus) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3226,6 +3647,21 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
@@ -3288,6 +3724,16 @@ func (ec *executionContext) unmarshalNUserRole2githubᚗcomᚋjerrynimᚋgqlᚑl
 }
 
 func (ec *executionContext) marshalNUserRole2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserRole(ctx context.Context, sel ast.SelectionSet, v model.UserRole) graphql.Marshaler {
+	return v
+}
+
+func (ec *executionContext) unmarshalNUserStatus2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserStatus(ctx context.Context, v interface{}) (model.UserStatus, error) {
+	var res model.UserStatus
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUserStatus2githubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUserStatus(ctx context.Context, sel ast.SelectionSet, v model.UserStatus) graphql.Marshaler {
 	return v
 }
 
@@ -3573,6 +4019,21 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return graphql.MarshalString(*v)
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalTime(*v)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋjerrynimᚋgqlᚑleaveᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

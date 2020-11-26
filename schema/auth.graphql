@@ -9,10 +9,12 @@ type Mutation {
     password: String!
     name: String!
     bio: String
+    department:String!
     position: String!
+    workSpace:String!
     contact: String!
-    profileImage: String!
     birthday: String!
+    enteredDate:String!
     remainLeaves: Int!
   ): AuthResponse!
 

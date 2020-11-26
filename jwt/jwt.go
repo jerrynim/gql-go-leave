@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -9,7 +10,7 @@ import (
 
 // secret key being used to sign tokens
 var (
-    SecretKey = []byte("secret")
+    SecretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
 )
 
 //GenerateToken generates a jwt token and assign a userId to it's claims and return it
@@ -19,7 +20,7 @@ func GenerateToken(userId string) (string, error) {
     claims := token.Claims.(jwt.MapClaims)
     /* Set token claims */
     claims["userId"] = userId
-    claims["exp"] = time.Now().Add(time.Hour * 24).Unix()
+    claims["exp"] = time.Now().Add(time.Hour * 24 * 7).Unix()
     tokenString, err := token.SignedString(SecretKey)
     if err != nil {
         log.Fatal("Error in Generating key")

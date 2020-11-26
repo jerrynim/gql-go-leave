@@ -1,7 +1,16 @@
 type LeaveHistory {
   id: Int!
   user: User!
-  date: String!
-  createdAt: String!
-  updatedAt: String!
+  date: Time!
+  reason: String
+  status: LeaveStatus!
+  approver: User
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+enum LeaveStatus {
+  applied
+  accepted
+  rejected
 }

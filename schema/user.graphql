@@ -1,7 +1,15 @@
 enum UserRole {
+  master
   manager
   normal
 }
+
+enum UserStatus{
+  inOffice
+  resign
+}
+
+scalar Time
 
 type User {
   id: Int!
@@ -9,15 +17,20 @@ type User {
   password: String!
   name: String!
   bio: String
+  department:String!
   position: String!
+  workSpace:String!
   contact:String!
   role: UserRole!
+  status: UserStatus!
   profileImage: String!
-  birthday: String!
+  birthday: Time!
+  enteredDate:Time!
+  resignationDate: Time
   remainLeaves: Int!
   leaveHistories: [LeaveHistory]!
-  createdAt: String!
-  updatedAt: String!
+  createdAt: Time!
+  updatedAt: Time!
 }
 
 type Query {
