@@ -38,13 +38,14 @@ func Middleware() gin.HandlerFunc {
         var user model.User
         userId,parsingErr:=jwt.ParseToken(token)
 
+        
+       
         if parsingErr!=nil || userId == ""{
             log.Println("토큰 파싱 에러")
             c.Next()
             return
         }
         if err := db.Where("id = ?", userId).First(&user).Error; err != nil {
-            log.Println("유저 조회 에러")
             c.Next()
             return
         }

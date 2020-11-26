@@ -23,9 +23,6 @@ func (r *queryResolver) GetUsers(ctx context.Context) ([]*model.User, error) {
 //? Mutation
 
 func (r *mutationResolver) SignUp(ctx context.Context, email string, password string, name string, bio *string, department string, position string, workSpace string, contact string, birthday string, enteredDate string, remainLeaves int) (*model.AuthResponse, error) {
-
-	// loggedUser := ctx.Value("user")
-    // fmt.Print(loggedUser,"유저??")
 	
 	db, err := database.GetDatabase()
 
@@ -130,6 +127,19 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 	 return &result,nil
 }
 
+
 func (r *mutationResolver) Me(ctx context.Context) (*model.AuthResponse, error) {
-	panic(fmt.Errorf("not implemented"))
+	
+	userContext := ctx.Value("user")
+
+	if userContext ==nil{
+		panic(fmt.Errorf("잘못된 토큰입니다."))
+	}
+	loggedUser:= userContext.(model.User)
+	
+	result:= model.AuthResponse{
+		Token: "",
+		User: &loggedUser,
+	}
+	return &result,nil 
 }
