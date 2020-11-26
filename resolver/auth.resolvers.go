@@ -35,6 +35,14 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 	}
 	defer db.Close()
 	
+	var existUser model.User
+	db.Find(&existUser, &model.User{Email: email})
+
+	if existUser.ID !=0{
+		panic(fmt.Errorf("이미 존재하는 이메일 입니다."))
+	}
+
+
 	//* 비밀번호 bcrypt 해쉬 하기
 	hash,hashErr := bcrypt.GenerateFromPassword([]byte(password),bcrypt.DefaultCost)
 	
@@ -68,6 +76,7 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 	}
 	
 	
+	
 	createErr:= db.Create(&user).Error;
 
 	if createErr != nil {
@@ -87,7 +96,38 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 
 
 func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.AuthResponse, error) {
-	panic(fmt.Errorf("not implemented"))
+
+	db, err := database.GetDatabase()
+
+	if err != nil {
+		log.Println("Unable to connect to database", err)
+		panic(fmt.Errorf("데이터 베이스 연결 에러"))
+	}
+	defer db.Close()
+
+	var user model.User
+
+	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
+		panic(fmt.Errorf("해당 이메일의 유저를 찾을 수 없습니다."))
+	  }
+
+	passwordErr := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if passwordErr !=nil{
+		panic(fmt.Errorf("비밀번호가 일치하지 않습니다."))
+	}
+
+	token,jwtErr:=jwt.GenerateToken(fmt.Sprint(user.ID))
+	
+	
+	if jwtErr != nil {
+		panic(fmt.Errorf("토큰 생성 에러"))
+	}
+
+	 result:= model.AuthResponse{
+		 Token: token,
+		 User: &user,
+	 }
+	 return &result,nil
 }
 
 func (r *mutationResolver) Me(ctx context.Context) (*model.AuthResponse, error) {

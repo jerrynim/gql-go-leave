@@ -15,7 +15,7 @@ type AuthResponse struct {
 }
 
 type LeaveHistory struct {
-	ID        int         `json:"id" gorm:"autoIncrement;primary_key;index"`
+	ID        int         `json:"id" gorm:"primary_key;index;"`
 	User      *User       `json:"user" gorm:"not null"`
 	Date      time.Time   `json:"date" gorm:"type:timestamptz;not null"`
 	Reason    *string     `json:"reason"`
