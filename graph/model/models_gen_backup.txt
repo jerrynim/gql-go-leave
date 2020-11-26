@@ -1,8 +1,9 @@
 type LeaveHistory struct {
-	ID        int         `json:"id" gorm:"autoIncrement;primary_key;index"`
+	ID        int         `json:"id" gorm:"primary_key;index;"`
 	User      *User       `json:"user" gorm:"not null"`
 	Date      time.Time   `json:"date" gorm:"type:timestamptz;not null"`
 	Reason    *string     `json:"reason"`
+	Type      LeaveType   `json:"type"`
 	Status    LeaveStatus `json:"status" gorm:"default:'applied'"`
 	Approver  *User       `json:"approver"`
 	CreatedAt time.Time   `json:"createdAt" gorm:"type:timestamptz;not null;->;default:now()"`

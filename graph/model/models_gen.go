@@ -19,6 +19,7 @@ type LeaveHistory struct {
 	User      *User       `json:"user" gorm:"not null"`
 	Date      time.Time   `json:"date" gorm:"type:timestamptz;not null"`
 	Reason    *string     `json:"reason"`
+	Type      LeaveType   `json:"type"`
 	Status    LeaveStatus `json:"status" gorm:"default:'applied'"`
 	Approver  *User       `json:"approver"`
 	CreatedAt time.Time   `json:"createdAt" gorm:"type:timestamptz;not null;->;default:now()"`
@@ -87,6 +88,49 @@ func (e *LeaveStatus) UnmarshalGQL(v interface{}) error {
 }
 
 func (e LeaveStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type LeaveType string
+
+const (
+	LeaveTypeDay       LeaveType = "day"
+	LeaveTypeMorning   LeaveType = "morning"
+	LeaveTypeAfternoon LeaveType = "afternoon"
+)
+
+var AllLeaveType = []LeaveType{
+	LeaveTypeDay,
+	LeaveTypeMorning,
+	LeaveTypeAfternoon,
+}
+
+func (e LeaveType) IsValid() bool {
+	switch e {
+	case LeaveTypeDay, LeaveTypeMorning, LeaveTypeAfternoon:
+		return true
+	}
+	return false
+}
+
+func (e LeaveType) String() string {
+	return string(e)
+}
+
+func (e *LeaveType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = LeaveType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid LeaveType", str)
+	}
+	return nil
+}
+
+func (e LeaveType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

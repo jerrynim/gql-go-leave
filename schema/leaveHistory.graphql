@@ -3,14 +3,25 @@ type LeaveHistory {
   user: User!
   date: Time!
   reason: String
+  type: LeaveType!
   status: LeaveStatus!
   approver: User
   createdAt: Time!
   updatedAt: Time!
 }
 
+enum LeaveType {
+  day
+  morning
+  afternoon
+}
+
 enum LeaveStatus {
   applied
   accepted
   rejected
+}
+
+type Mutation {
+  makeLeaveHistory(date: String!, reason: String, type: LeaveType!): Boolean!
 }

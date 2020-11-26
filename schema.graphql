@@ -23,6 +23,11 @@ type Mutation {
   ): AuthResponse!
   login(email: String!, password: String!): AuthResponse!
   me: AuthResponse!
+  makeLeaveHistory(
+    date: String!
+    reason: String
+    type: LeaveType!
+  ): Boolean!
 }
 
 type AuthResponse {
@@ -35,6 +40,7 @@ type LeaveHistory {
   user: User!
   date: Time!
   reason: String
+  type: LeaveType!
   status: LeaveStatus!
   approver: User
   createdAt: Time!
@@ -64,6 +70,12 @@ type User {
 }
 
 scalar Time
+
+enum LeaveType {
+  day
+  morning
+  afternoon
+}
 
 enum LeaveStatus {
   applied

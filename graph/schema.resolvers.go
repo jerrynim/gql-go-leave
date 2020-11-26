@@ -23,6 +23,10 @@ func (r *mutationResolver) Me(ctx context.Context) (*model.AuthResponse, error) 
 	panic(fmt.Errorf("not implemented"))
 }
 
+func (r *mutationResolver) MakeLeaveHistory(ctx context.Context, date string, reason *string, typeArg model.LeaveType) (bool, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *queryResolver) GetUsers(ctx context.Context) ([]*model.User, error) {
 	panic(fmt.Errorf("not implemented"))
 }
