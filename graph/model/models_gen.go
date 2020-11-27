@@ -19,8 +19,8 @@ type LeaveHistory struct {
 	User      *User       `json:"user" gorm:"not null"`
 	Date      time.Time   `json:"date" gorm:"type:timestamptz;not null"`
 	Reason    *string     `json:"reason"`
-	Type      LeaveType   `json:"type"`
-	Status    LeaveStatus `json:"status" gorm:"default:'applied'"`
+	Type      LeaveType   `json:"type" gorm:"type:leave_type;default:'day'"`
+	Status    LeaveStatus `json:"status" gorm:"type:leave_status;default:'applied'"`
 	Approver  *User       `json:"approver"`
 	CreatedAt time.Time   `json:"createdAt" gorm:"type:timestamptz;not null;->;default:now()"`
 	UpdatedAt time.Time   `json:"updatedAt" gorm:"type:timestamptz;not null;default:now()"`
@@ -36,8 +36,8 @@ type User struct {
 	Position        string          `json:"position" gorm:"not null"` //직급
 	WorkSpace       string          `json:"wrokSpace" gorm:"not null"` //근무지
 	Contact         string          `json:"contact"  gorm:"not null"` //연락처
-	Role            UserRole        `json:"role" gorm:"not null;default:'normal'"` // 일반 혹은 매니저
-	Status          UserStatus      `json:"status" gorm:"default:'inOffice'"`
+	Role            UserRole        `json:"role" gorm:"type:user_role;not null;default:'normal'"` // 일반 혹은 매니저
+	Status          UserStatus      `json:"status" gorm:"type:user_status;default:'inOffice'"`
 	ProfileImage     string          `json:"profileImage" gorm:"not null;default:'https://next-airbnb.s3.ap-northeast-2.amazonaws.com/profile_image_green2.svg'"`
 	Birthday        time.Time       `json:"birthday" gorm:"type:timestamptz;not null"`
 	EnteredDate     time.Time       `json:"enteredDate" gorm:"type:timestamptz;not null"`
