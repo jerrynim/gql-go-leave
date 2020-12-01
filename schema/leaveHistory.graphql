@@ -1,11 +1,13 @@
 type LeaveHistory {
   id: Int!
   user: User!
+  userId: Int!
   date: Time!
   reason: String
   type: LeaveType!
   status: LeaveStatus!
   approver: User
+  approverId: Int
   createdAt: Time!
   updatedAt: Time!
 }
@@ -22,6 +24,12 @@ enum LeaveStatus {
   rejected
 }
 
+type Query{
+  getMyLeaves():[LeaveHistory!]!
+  getAppliedLeaves():[LeaveHistory!]!
+}
+
 type Mutation {
   makeLeaveHistory(date: String!, reason: String, type: LeaveType!): Boolean!
+  changeLeaveStatus(leaveId: Int!, status: LeaveStatus!): Boolean!
 }

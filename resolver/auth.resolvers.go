@@ -23,7 +23,7 @@ func (r *queryResolver) GetUsers(ctx context.Context) ([]*model.User, error) {
 //? Mutation
 
 func (r *mutationResolver) SignUp(ctx context.Context, email string, password string, name string, bio *string, department string, position string, workSpace string, contact string, birthday string, enteredDate string, remainLeaves int) (*model.AuthResponse, error) {
-	
+
 	db, err := database.GetDatabase()
 
 	if err != nil {
@@ -57,6 +57,7 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 		panic(fmt.Errorf("생년월일 시간 파싱 에러"))
 	}
 
+	 
 
 	user := model.User{
 		Email : email,
@@ -70,6 +71,7 @@ func (r *mutationResolver) SignUp(ctx context.Context, email string, password st
 		Birthday: birthdayDate,
 		EnteredDate: parsedEnteredDate,
 		RemainLeaves: remainLeaves,
+		LeaveHistoryIds: []int64{},
 	}
 	
 	

@@ -63,5 +63,6 @@ func RunMigrations(db *gorm.DB) {
    		END IF;
 	END$$;
 	`)	
+
 	db.AutoMigrate(&model.User{}, &model.LeaveHistory{})
 }

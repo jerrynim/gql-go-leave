@@ -7,6 +7,8 @@ import (
 	"io"
 	"strconv"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type AuthResponse struct {
@@ -16,12 +18,14 @@ type AuthResponse struct {
 
 type LeaveHistory struct {
 	ID        int         `json:"id" gorm:"primary_key;index;"`
-	User      *User       `json:"user" gorm:"not null"`
+	User      *User       `json:"user"`
+	UserID     int        `json:"userId" gorm:"not null"`
 	Date      time.Time   `json:"date" gorm:"type:timestamptz;not null"`
 	Reason    *string     `json:"reason"`
 	Type      LeaveType   `json:"type" gorm:"type:leave_type;default:'day'"`
 	Status    LeaveStatus `json:"status" gorm:"type:leave_status;default:'applied'"`
 	Approver  *User       `json:"approver"`
+	ApproverID *int       `json:"approverId"`
 	CreatedAt time.Time   `json:"createdAt" gorm:"type:timestamptz;not null;->;default:now()"`
 	UpdatedAt time.Time   `json:"updatedAt" gorm:"type:timestamptz;not null;default:now()"`
 }
@@ -43,7 +47,8 @@ type User struct {
 	EnteredDate     time.Time       `json:"enteredDate" gorm:"type:timestamptz;not null"`
 	ResignationDate *time.Time      `json:"resignationDate" gorm:"type:timestamptz;"`
 	RemainLeaves    int             `json:"remainLeaves" gorm:"not null"` //남은 연차 일
-	LeaveHistories  []*LeaveHistory `json:"leaveHistories" gorm:"not null"`
+	LeaveHistories  []*LeaveHistory `json:"leaveHistories"`
+	LeaveHistoryIds pq.Int64Array   `json:"leaveHistoryIds" gorm:"type:integer[]"`
 	CreatedAt       time.Time       `json:"createdAt" gorm:"type:timestamptz;not null;->;default:now()"`
 	UpdatedAt       time.Time       `json:"updatedAt" gorm:"type:timestamptz;not null;default:now()"`
 }

@@ -28,13 +28,16 @@ type User {
   enteredDate:Time!
   resignationDate: Time
   remainLeaves: Int!
-  leaveHistories: [LeaveHistory]!
+  leaveHistories: [LeaveHistory!]!
+  leaveHistoryIds: [Int!]!
   createdAt: Time!
   updatedAt: Time!
 }
 
+
+
 type Query {
-    getUsers():[User]!
+    getUsers():[User!]!
 }
 
 

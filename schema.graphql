@@ -4,7 +4,9 @@ schema {
 }
 
 type Query {
-  getUsers: [User]!
+  getMyLeaves: [LeaveHistory!]!
+  getAppliedLeaves: [LeaveHistory!]!
+  getUsers: [User!]!
 }
 
 type Mutation {
@@ -28,6 +30,7 @@ type Mutation {
     reason: String
     type: LeaveType!
   ): Boolean!
+  changeLeaveStatus(leaveId: Int!, status: LeaveStatus!): Boolean!
 }
 
 type AuthResponse {
@@ -38,11 +41,13 @@ type AuthResponse {
 type LeaveHistory {
   id: Int!
   user: User!
+  userId: Int!
   date: Time!
   reason: String
   type: LeaveType!
   status: LeaveStatus!
   approver: User
+  approverId: Int
   createdAt: Time!
   updatedAt: Time!
 }
@@ -64,7 +69,8 @@ type User {
   enteredDate: Time!
   resignationDate: Time
   remainLeaves: Int!
-  leaveHistories: [LeaveHistory]!
+  leaveHistories: [LeaveHistory!]!
+  leaveHistoryIds: [Int!]!
   createdAt: Time!
   updatedAt: Time!
 }
